@@ -2,8 +2,10 @@ module github.com/deglebe/webseek
 
 go 1.23.4
 
+replace github.com/deglebe/browse => ../browse
+
 require (
-	github.com/deglebe/browse v0.0.0-20250421003821-c7f3ea34aa7c
+	github.com/deglebe/browse v0.0.0-20250421050350-d652f640a105
 	github.com/hajimehoshi/ebiten/v2 v2.8.7
 )
 
@@ -12,6 +14,7 @@ require (
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
 	github.com/ebitengine/purego v0.8.0 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
+	golang.org/x/image v0.26.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 )
