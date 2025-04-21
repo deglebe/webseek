@@ -4,12 +4,14 @@ import (
 	"os"
 	"io"
 	"fmt"
+	"image"
 	"image/color"
+
+	"golang.org/x/image/font"
+	"golang.org/x/image/math/fixed"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-
-	"golang.org/x/image/font/basicfont"
 
 	"github.com/deglebe/browse/pkg/html"
 	"github.com/deglebe/browse/pkg/layout"
@@ -71,30 +73,37 @@ func (b *Browser) Draw(screen *ebiten.Image) {
 	tab := b.st.Tabs[b.st.CurrentTab]
 
 	for _, op := range tab.Ops {
-		if op.Y < tab.Scroll { continue }
-		if op.Y >= tab.Scroll + b.h - statusBarHeight { continue }
-		ebitenutil.DebugPrintAt(screen, op.Text, op.X, op.Y - tab.Scroll)
+		if op.Y < tab.Scroll || op.Y >= tab.Scroll + b.h - statusBarHeight { continue }
+
+		dr := &font.Drawer{
+			Dst:	screen,
+			Src:	image.NewUniform(color.White),
+			Face:	op.Face,
+			Dot:	fixed.Point26_6{
+				X:	fixed.I(op.X),
+				Y:	fixed.I(op.Y - tab.Scroll + op.Face.Metrics().Ascent.Round()),
+			},
+		}
+		dr.DrawString(op.Text)
 	}
 
 	status := fmt.Sprintf("[%d/%d] %s", tab.Scroll, tab.ContentH, tab.URL)
-	ebitenutil.DebugPrintAt(screen, status, 0, b.h-16)
+	ebitenutil.DebugPrintAt(screen, status, 0, b.h - statusBarHeight)
 }
 
 
-func (b *Browser) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	b.w, b.h = outsideWidth, outsideHeight
-	return outsideWidth, outsideHeight
+func (b *Browser) Layout(width, height int) (int, int) {
+	if width != b.w || height != b.h {
+		b.w, b.h = width, height
+		b.relayout()
+	}
+	return width, height
 }
 
 func (b *Browser) relayout() {
 	tab := &b.st.Tabs[b.st.CurrentTab]
-	face := basicfont.Face7x13
-	ctx := &layout.Context{
-		Face:		face,
-		LineHeight:	face.Metrics().Height.Round(),
-		MaxWidth:	b.w,
-		ListIndent:	20,
-	}
+	ctx, err := layout.NewContext(b.w)
+	if err != nil { panic(err) }
 	ops, totalH := layout.Render(tab.DOM, ctx)
 	tab.Ops = ops
 	tab.ContentH = totalH
