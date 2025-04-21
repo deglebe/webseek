@@ -1,2 +1,2 @@
 # webseek
-world's worst web browser, using deglebe/browse engine
+world's worst web browser, using deglebe/browse engine and ebiten
