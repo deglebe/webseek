@@ -1,7 +1,7 @@
+// main.go
 package main
 
 import (
-	"os"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -9,19 +9,15 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 2 {
-		log.Fatalf("Usage: %s <file>", os.Args[0])
-	}
-	filename := os.Args[1]
-
-	game, err := app.NewBrowser(filename)
+	game, err := app.NewBrowser("")
 	if err != nil {
-		log.Fatal("Failed to load page:", err)
+		log.Fatal("failed to initialize browser:", err)
 	}
 
 	ebiten.SetWindowSize(800, 600)
-	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("webseek")
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
